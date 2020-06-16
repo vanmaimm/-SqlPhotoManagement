@@ -82,3 +82,18 @@ VALUES (1,1),
 INSERT INTO photo_descriptions (id,content)
 VALUES (1,'The girl has found her love');
 ```
+# Querry
+```
+SELECT 	p.title,
+	c.name ,
+	p.image,
+	(SELECT pd.content
+        FROM photo_descriptions pd 
+        WHERE pd.id = p.id) AS  content, 
+    	(SELECT GROUP_CONCAT(t.name)
+        FROM tags t, taggale tg
+        WHERE tg.tag_id = t.id AND tg.photo_id = p.id  ) AS  tags     
+FROM photos p 
+INNER JOIN categories c
+ON p.category_id = c.id ;
+```
