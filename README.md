@@ -89,11 +89,79 @@ SELECT 	p.title,
 	p.image,
 	(SELECT pd.content
         FROM photo_descriptions pd 
-        WHERE pd.id = p.id) AS  content, 
+        WHERE pd.photo_id = p.id) AS  content, 
     	(SELECT GROUP_CONCAT(t.name)
-        FROM tags t, taggale tg
+        FROM tags t, taggable tg
         WHERE tg.tag_id = t.id AND tg.photo_id = p.id  ) AS  tags     
 FROM photos p 
 INNER JOIN categories c
 ON p.category_id = c.id ;
+```
+# COPY from Mr.Linh
+## CREATE
+```
+CREATE TABLE `categories` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(50) ,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+);
+
+CREATE TABLE `photos` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `title` varchar(100) ,
+  `category_id` bigint,
+  `image` varchar(100),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+
+  FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `photo_descriptions` (
+  `photo_id` bigint PRIMARY KEY,
+  `content` varchar(100),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+
+  FOREIGN KEY (`photo_id`) REFERENCES `photos` (`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `tags` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(50),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+);
+
+CREATE TABLE `taggable` (
+  `tag_id` bigint,
+  `photo_id` bigint,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+
+  FOREIGN KEY (`photo_id`) REFERENCES `photos` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `users` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `email` varchar(50),
+  `password` varchar(255),
+  `role` varchar(50),
+
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+);
+
+```
+## INSERT
+```
+insert into categories(`name`) values ('Friend'), ('Family');
+insert into photos(`title`,`category_id`,`image`) values ('T1',1,'image1'), ('T2',1,'image2');
+insert into photo_descriptions(`photo_id`,`content`) values (1,'content1'), (2,'content2');
+insert into tags(`name`) values ('house'), ('building'), ('beach'), ('forest');
+insert into users(`email`,`password`,`role`) values ('admin@gmail.com','123','admin'), ('nam@gmail.com', 'abc', 'user');
+insert into taggable(`tag_id`,`photo_id`) values (1,1) ,(1,2), (3,2), (2,1), (2,2);
+
 ```
